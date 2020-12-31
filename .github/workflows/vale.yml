@@ -1,0 +1,30 @@
+---
+name: Vale
+on: [push]
+
+jobs:
+
+  vale:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: 'Gather files that have changed'
+        id: file_changes
+        uses: trilom/file-changes-action@v1.2.4
+
+      - name: 'run vale'
+        uses: errata-ai/vale-action@v1.3.0
+        with:
+          config: .vale.ini
+          files: '${{ steps.file_changes.outputs.files_modified }}'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
